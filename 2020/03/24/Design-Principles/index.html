@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="设计原则之开闭原则，原文博客使用的java语言示例，本文使用typescript，都是静态语言。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开闭原则">
+<meta property="og:url" content="http://yoursite.com/2020/03/24/Design-Principles/index.html">
+<meta property="og:site_name" content="Hhpon">
+<meta property="og:description" content="设计原则之开闭原则，原文博客使用的java语言示例，本文使用typescript，都是静态语言。">
+<meta property="og:image" content="http://yoursite.com/2020/03/24/Design-Principles/first.png">
+<meta property="og:image" content="http://yoursite.com/2020/03/24/Design-Principles/second.png">
+<meta property="article:published_time" content="2020-03-24T03:49:03.000Z">
+<meta property="article:modified_time" content="2020-03-27T07:12:59.250Z">
+<meta property="article:author" content="Hhpon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/2020/03/24/Design-Principles/first.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/03/24/Design-Principles/"/>
+
+
+
+
+
+  <title>开闭原则 | Hhpon</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hhpon</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/24/Design-Principles/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hhpon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hhpon">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">开闭原则</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-24T11:49:03+08:00">
+                2020-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  设计原则之开闭原则，原文博客使用的java语言示例，本文使用typescript，都是静态语言。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="开闭原则定义"><a href="#开闭原则定义" class="headerlink" title="开闭原则定义"></a>开闭原则定义</h3><hr>
+<p>开闭原则是编程世界里面最基础的设计原则，它指导我们如何建立一个稳定，灵活的系统。</p>
+<p><strong>一个软件实体，如类、模块和函数应该对拓展开放，对修改关闭</strong></p>
+<h3 id="开闭原则是什么意思"><a href="#开闭原则是什么意思" class="headerlink" title="开闭原则是什么意思"></a>开闭原则是什么意思</h3><hr>
+<p><strong>开闭原则明确的告诉我们：软件实现应该对拓展开发，对修改关闭。</strong></p>
+<p>事实很容易理解，如果我们在维护一个项目，相比去改变代码，我们更愿意增加代码以实现功能；我认为原因有二：</p>
+<ul>
+<li>想要改变原来代码需要去理解原来的代码，不论项目大小这都是一项折磨人的事情</li>
+<li><strong>改变原来的代码有很大的风险</strong>，很容易影响之前的逻辑，特别是对后来加入的人来说</li>
+</ul>
+<p>一个软件只要在生命周期内，都会发生变化，既然变化是一个事实，我们就应该在设计是尽量适应这些变化，以提高项目的稳定性和灵活性，<strong>真正实现“拥抱变化”</strong>。</p>
+<p>我们举例说明什么是开闭原则，以书店销售书籍为例，其类图如下：</p>
+<img src="/2020/03/24/Design-Principles/first.png" class="" title="原始逻辑">
+
+<p>书籍接口：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// typescript 代码</span></span><br><span class="line"><span class="keyword">interface</span> IBook&#123;</span><br><span class="line">  getName(): <span class="built_in">string</span>;</span><br><span class="line">  getPrice(): <span class="built_in">string</span>;</span><br><span class="line">  getAuthor(): <span class="built_in">string</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>小说类书籍：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// typescript</span></span><br><span class="line"><span class="keyword">class</span> NovelBook <span class="keyword">implements</span> IBook &#123;</span><br><span class="line">  <span class="keyword">protected</span> name: <span class="built_in">string</span></span><br><span class="line">  <span class="keyword">protected</span> price: <span class="built_in">number</span></span><br><span class="line">  <span class="keyword">protected</span> author: <span class="built_in">string</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">name: <span class="built_in">string</span>, price: <span class="built_in">number</span>, author: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.name = name</span><br><span class="line">    <span class="keyword">this</span>.price = price</span><br><span class="line">    <span class="keyword">this</span>.author = author</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getAuthor() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.author</span><br><span class="line">  &#125;</span><br><span class="line">  getName() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.name</span><br><span class="line">  &#125;</span><br><span class="line">  getPrice() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.price</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用小说类：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> book = <span class="keyword">new</span> NovelBook(<span class="string">'笑傲江湖'</span>,<span class="number">100</span>,<span class="string">'金庸'</span>)</span><br><span class="line">book.getAuthor() <span class="comment">// 金庸</span></span><br></pre></td></tr></table></figure>
+
+<p>项目投入生产，书籍正常销售，但是我们经常因为各种原因，要打折销售书籍。</p>
+<p>也就是说我们要改变我们的书籍价格,<code>getPrice()</code></p>
+<p>原文分析了三种方法：</p>
+<ul>
+<li><p>修改接口 - <code>IBook</code>:<br>在IBook接口中，增加一个方法<code>getOffrice()</code>,专门用于进行打折处理，所有的实现类实现此方法。但是这样的一个修改方式，实现类<code>NovelBook</code>要修改，同时<code>IBook</code>接口应该稳定且可靠，不应该经常发生改变，否则接口作为契约的作用就失去了。因此，此方案否定。</p>
+</li>
+<li><p>修改实现类 - <code>NovelBook</code>:<br>修改<code>NovelBook</code>类的方法，直接在<code>getPrice()</code>方法中实现打折处理。此方法也是有问题的，例如我们还需要读取书籍打折前的价格呢？这不是问题吗？当然我们可以再增加<code>getOffPrice()</code>方法，这也是实现其需求的一种方法，但是这就有两个读取价格的方法。因此这不是最优的方案。</p>
+</li>
+<li><p>通过拓展实现变化<br>我们可以增加一个子类<code>OffNovelBook</code>,覆盖<code>getPrice()</code>方法。此方法修改少，对现有的代码没有影响，风险少，是个好办法。</p>
+</li>
+</ul>
+<img src="/2020/03/24/Design-Principles/second.png" class="">
+
+<p>打折类：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> OffNovelBook <span class="keyword">extends</span> NovelBook &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">name: <span class="built_in">string</span>, price: <span class="built_in">number</span>, author: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">super</span>(name, price, author)</span><br><span class="line">  &#125;</span><br><span class="line">  getPrice() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.price &gt; <span class="number">40</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.price * <span class="number">0.8</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.price * <span class="number">0.9</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样打折销售开发就完成了，我们只是增加了一个<code>OffNovelBook</code>类，我们修改的代码都是高层次的模块，没有修改底层模块，代码改变量少，可以有效的防止风险的扩散。</p>
+<p>我们可以把变化归纳为两种类型：</p>
+<ul>
+<li>逻辑变化<br>只改变了一个逻辑，而不涉及其他模块，比如一个算法是<code>a*b*c</code>，现在需要修改为<code>a+b+c</code>，可以直接通过修改原有类中方法的方式来完成，前提条件是所有一览或关联类都按照相同的逻辑处理</li>
+<li>子模块变化<br>一人模块变化，会对其他的模块产生影响，特别是一个低层次的模块变化必然引起高层模块的变化，因此在通过拓展完成变化。</li>
+</ul>
+<h3 id="为什么使用开闭原则"><a href="#为什么使用开闭原则" class="headerlink" title="为什么使用开闭原则"></a>为什么使用开闭原则</h3><hr>
+<p>第一：开闭原则非常有名，只要是面向对象编程，在开发时都会强调开闭原则</p>
+<p>第二：开闭原则是最基础的设计原则，其它的五个设计原则都是开闭原则的具体形态，也就是说其它的五个设计原则是指导设计的工具和方法，而开闭原则才是其精神领袖。依照java语言的称谓，开闭原则是抽象类，而其它的五个原则是具体的实现类。</p>
+<p>第三：开闭原则可以提高复用性<br>在面向对象的设计中，所有的逻辑都是从原子逻辑组合而来，不是在一个类中独立实现一个业务逻辑。只有这样的代码才可以复用，粒度越小，被复用的可能性越大。那为什么要复用呢？减少代码的重复，避免相同的逻辑分散在多个角落，减少维护人员的工作量。那怎么才能提高复用率呢？缩小逻辑粒度，直到一个逻辑不可以分为止。</p>
+<p>第四：开闭原则可以提高维护性<br>一款软件量产后，维护人员的工作不仅仅对数据进行维护，还可能要对程序进行扩展，维护人员最乐意的事是扩展一个类，而不是修改一个类。让维护人员读懂原有代码，再进行修改，是一件非常痛苦的事情，不要让他在原有的代码海洋中游荡后再修改，那是对维护人员的折磨和摧残。</p>
+<p>第五：面向对象开发的要求<br>万物皆对象，我们要把所有的事物抽象成对象，然后针对对象进行操作，但是万物皆发展变化，有变化就要有策略去应对，怎么快速应对呢？这就需要在设计之初考虑到所有可能变化的因素，然后留下接口，等待“可能”转变为“现实”。</p>
+<h3 id="开闭原则如何使用"><a href="#开闭原则如何使用" class="headerlink" title="开闭原则如何使用"></a>开闭原则如何使用</h3><hr>
+<p>第一：抽象约束<br>抽象是对一组事物的通用描述，没有具体的实现，也就表示它可以有非常多的可能性，可以跟随需求的变化而变化。因此，通过接口或抽象类可以约束一组可能变化的行为，并且能够实现对扩展开放，其包含三层含义：</p>
+<p>通过接口或抽象类约束扩散，对扩展进行边界限定，不允许出现在接口或抽象类中不存在的public方法。<br>参数类型，引用对象尽量使用接口或抽象类，而不是实现类，这主要是实现里氏替换原则的一个要求<br>抽象层尽量保持稳定，一旦确定就不要修改<br>第二：元数据(metadata)控件模块行为<br>编程是一个很苦很累的活，那怎么才能减轻压力呢？答案是尽量使用元数据来控制程序的行为，减少重复开发。什么是元数据？用来描述环境和数据的数据，通俗的说就是配置参数，参数可以从文件中获得，也可以从数据库中获得。</p>
+<p>第三：制定项目章程<br>在一个团队中，建立项目章程是非常重要的，因为章程是所有人员都必须遵守的约定，对项目来说，约定优于配置。这比通过接口或抽象类进行约束效率更高，而扩展性一点也没有减少。</p>
+<p>第四：封装变化<br>对变化封装包含两层含义：<br>(1)将相同的变化封装到一个接口或抽象类中<br>(2)将不同的变化封装到不同的接口或抽象类中，不应该有两个不同的变化出现在同一个接口或抽象类中。<br>封装变化，也就是受保护的变化，找出预计有变化或不稳定的点，我们为这些变化点创建稳定的接口。</p>
+<blockquote>
+<p><a href="https://blog.csdn.net/hfreeman2008/article/details/52344022" target="_blank" rel="noopener" title="原文代码部分采用的Java">原文链接-六大设计原则之开闭原则</a></p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/24/dedesign-patterns/" rel="next" title="设计模式">
+                <i class="fa fa-chevron-left"></i> 设计模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/27/oop-feature/" rel="prev" title="面向对象的特性——封装、继承、多态">
+                面向对象的特性——封装、继承、多态 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Hhpon</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#开闭原则定义"><span class="nav-number">1.</span> <span class="nav-text">开闭原则定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开闭原则是什么意思"><span class="nav-number">2.</span> <span class="nav-text">开闭原则是什么意思</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么使用开闭原则"><span class="nav-number">3.</span> <span class="nav-text">为什么使用开闭原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开闭原则如何使用"><span class="nav-number">4.</span> <span class="nav-text">开闭原则如何使用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hhpon</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
