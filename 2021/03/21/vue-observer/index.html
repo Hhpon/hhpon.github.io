@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要比较&#96;Vue2.0&#96;与&#96;Vue3.0&#96;双向绑定的原理，以及由二者不同的原理造成的一些差异，并对该差异产生的原因进行简单的分析...">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入Vue双向绑定原理">
+<meta property="og:url" content="http://yoursite.com/2021/03/21/vue-observer/index.html">
+<meta property="og:site_name" content="学习笔记">
+<meta property="og:description" content="本文主要比较&#96;Vue2.0&#96;与&#96;Vue3.0&#96;双向绑定的原理，以及由二者不同的原理造成的一些差异，并对该差异产生的原因进行简单的分析...">
+<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2939865e06cc4920bfd235586e7be7b1~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c1034f14f4f847f58d6547d02ab336c5~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/803f90361dc04e3ab8ca501763358d4c~tplv-k3u1fbpfcp-watermark.image">
+<meta property="article:published_time" content="2021-03-21T11:53:18.000Z">
+<meta property="article:modified_time" content="2021-04-17T02:20:44.530Z">
+<meta property="article:author" content="Hhpon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2939865e06cc4920bfd235586e7be7b1~tplv-k3u1fbpfcp-watermark.image">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/03/21/vue-observer/"/>
+
+
+
+
+
+  <title>深入Vue双向绑定原理 | 学习笔记</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">学习笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/03/21/vue-observer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hhpon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入Vue双向绑定原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-03-21T19:53:18+08:00">
+                2021-03-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文主要比较`Vue2.0`与`Vue3.0`双向绑定的原理，以及由二者不同的原理造成的一些差异，并对该差异产生的原因进行简单的分析...
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><hr>
+<p>本文主要比较<code>Vue2.0</code>与<code>Vue3.0</code>双向绑定的原理，以及由二者不同的原理造成的一些差异，并对该差异产生的原因进行简单的分析。</p>
+<ul>
+<li><code>Vue2.0</code>双向绑定的主要实现原理是<code>Object.defineProperty()</code>方法</li>
+<li><code>Vue3.0</code>双向绑定的主要实现原理是<code>ES6</code>新增的<code>Proxy()</code>对象<br>所以本文阐述的双向绑定的原理的区别简单来说就是上述两种方法对于<code>劫持</code>对象属性的不同。但是为了详细说清楚不同原理造成的差异，我们必须从源码说起。<br><code>Vue</code>双向绑定应用的设计模式是<code>发布-订阅模式</code>，由于设计模式能更好的说明不同类之间的意图，对于我们理解源码有很大的帮助(Ps:对于笔者是的) ，所以我们将从这个设计模式说起。<br><code>发布-订阅模式</code>在很多文章中都被认为成<code>观察者模式</code>，包括在《Javascript设计模式与开发实践》一书中，作者表示<blockquote>
+<p>发布-订阅模式又叫观察者模式</p>
+</blockquote>
+</li>
+</ul>
+<p>经过笔者考察二者在是实现上还是有些区别，但是能确定<code>发布-订阅模式</code>是<code>观察者模式</code>的一种变体。</p>
+<p><a href="https://github.com/vuejs/vue/blob/dev/src/core/observer/index.js#L156-L193" target="_blank" rel="noopener">Vue2.0双向绑定源码</a></p>
+<h3 id="观察者模式-VS-发布-订阅模式"><a href="#观察者模式-VS-发布-订阅模式" class="headerlink" title="观察者模式 VS 发布-订阅模式"></a>观察者模式 VS 发布-订阅模式</h3><hr>
+<h4 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h4><blockquote>
+<p>它定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，所有依赖于它的对象都将得到通知。</p>
+</blockquote>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2939865e06cc4920bfd235586e7be7b1~tplv-k3u1fbpfcp-watermark.image" alt="观察者模式.png"></p>
+<p>观察者模式中主要由两类对象组成，一种是发布者(主题)，一种是观察者。</p>
+<ul>
+<li>发布者 – 为观察者提供注册功能，在需要的时候给观察者发送消息</li>
+<li>观察者 – 实现上需要监听发布者的改变</li>
+</ul>
+<p>具体实现我们来看一下代码(TypeScript)</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Observer &#123;</span><br><span class="line">  update() &#123;</span><br><span class="line">    <span class="comment">//  do something</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"收到通知"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Subject &#123;</span><br><span class="line">  observerLists: Observer[] = []</span><br><span class="line"></span><br><span class="line">  publish() &#123;</span><br><span class="line">    <span class="keyword">this</span>.observerLists.forEach(<span class="function">(<span class="params">observer</span>) =&gt;</span> &#123;</span><br><span class="line">      observer.update()</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  trigger(observer: Observer) &#123;</span><br><span class="line">    <span class="keyword">this</span>.observerLists.push(observer)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> Observer()</span><br><span class="line"><span class="keyword">const</span> subject = <span class="keyword">new</span> Subject()</span><br><span class="line"></span><br><span class="line">subject.trigger(observer)</span><br><span class="line"></span><br><span class="line">subject.publish()  <span class="comment">//收到通知</span></span><br></pre></td></tr></table></figure>
+
+<p>这就是最简单的观察者模式的实现方式，该模式主要含有两种类型的对象，而且这两种对象之间是“互相了解”的。</p>
+<h4 id="发布-订阅模式"><a href="#发布-订阅模式" class="headerlink" title="发布-订阅模式"></a>发布-订阅模式</h4><p>事实上，<code>发布-订阅模式</code>与<code>观察者模式</code>的意图是没有太大的区别的，都是为了监听一个对象的变化，并且在这个对象改变的时候通知另一个对象。但是现在两个对象之间是“互相了解”(耦合)的，那么为了解耦两种对象之间的关系，我们可以来看一下<code>发布-订阅模式</code>有什么新的改变呢？</p>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c1034f14f4f847f58d6547d02ab336c5~tplv-k3u1fbpfcp-watermark.image" alt="发布-订阅模式.png"></p>
+<p>我们再来看一下具体代码的实现(TypeScript)</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> Dep &#123;</span><br><span class="line">  observerLists: Observer[] = []</span><br><span class="line">  publish() &#123;</span><br><span class="line">    <span class="keyword">this</span>.observerLists.forEach(<span class="function">(<span class="params">observer</span>) =&gt;</span> &#123;</span><br><span class="line">      observer.update()</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  trigger(observer: Observer) &#123;</span><br><span class="line">    <span class="keyword">this</span>.observerLists.push(observer)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Observer &#123;</span><br><span class="line">  update() &#123;</span><br><span class="line">    <span class="comment">//  do something</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"收到通知"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Subject &#123;</span><br><span class="line">  deps: Dep[] = []</span><br><span class="line">  change() &#123;</span><br><span class="line">    <span class="keyword">this</span>.deps.forEach(<span class="function">(<span class="params">dep</span>) =&gt;</span> dep.publish())</span><br><span class="line">  &#125;</span><br><span class="line">  depend(dep: Dep) &#123;</span><br><span class="line">    <span class="keyword">this</span>.deps.push(dep)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> Observer()</span><br><span class="line"><span class="keyword">const</span> subject = <span class="keyword">new</span> Subject()</span><br><span class="line"><span class="keyword">const</span> dep = <span class="keyword">new</span> Dep()</span><br><span class="line"></span><br><span class="line">subject.depend(dep) <span class="comment">// 发布者关联消息中心</span></span><br><span class="line">dep.trigger(observer) <span class="comment">// 观察者关联消息中心</span></span><br><span class="line">subject.change() <span class="comment">// 收到通知</span></span><br></pre></td></tr></table></figure>
+
+<p>与观察者模式相比较，该模式增加了消息中心的对象来做消息的调度工作。<br>而我们一会要看的<code>Vue</code>源码，就是通过这种方式实现的。</p>
+<h3 id="Vue-双向绑定原理解析"><a href="#Vue-双向绑定原理解析" class="headerlink" title="Vue 双向绑定原理解析"></a>Vue 双向绑定原理解析</h3><h4 id="Vue-2-0-VS-3-0-有哪些不同"><a href="#Vue-2-0-VS-3-0-有哪些不同" class="headerlink" title="Vue 2.0 VS 3.0 有哪些不同"></a>Vue 2.0 VS 3.0 有哪些不同</h4><ul>
+<li>2.0 响应式数据都要提前data里面声明</li>
+<li>2.0 响应式数据对数组的效果不理想</li>
+<li>2.0 响应式数据需要对多级对象进行深度遍历影响性能</li>
+</ul>
+<p>那造成2.0这些问题的原因是什么呢？</p>
+<h4 id="手写-Vue-双向绑定部分源码"><a href="#手写-Vue-双向绑定部分源码" class="headerlink" title="手写 Vue 双向绑定部分源码"></a>手写 Vue 双向绑定部分源码</h4><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/803f90361dc04e3ab8ca501763358d4c~tplv-k3u1fbpfcp-watermark.image" alt="发布-订阅模式.png"></p>
+<p>我们举个简单的双向绑定的例子：页面上存在<code>input</code>输入框以及一个<code>p</code>标签，我们要实现一个在输入框输入的内容会自动显示在<code>p</code>标签当中的功能。其实就是手写一个最普通的一个双向绑定。</p>
+<ol>
+<li><code>Observer</code>作为发布者，用来做检测data数据改变的功能</li>
+<li><code>Dep</code>作为消息中心，用来管理<code>Observer</code>与<code>Subscriber</code>之间的消息传递</li>
+<li><code>Subscriber</code>作为观察者，数据有改变时被通知并执行<code>update</code>方法</li>
+</ol>
+<p>代码的具体实现(html + ts)</p>
+<p><em>建议您自己手写一边，最好是再用调试模式看一下执行过程。</em></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"IE=edge"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">id</span>=<span class="string">"input"</span> /&gt;</span><span class="tag">&lt;<span class="name">br</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">id</span>=<span class="string">"p"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./vue-ts.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 为了更好的理解博客</span></span><br><span class="line"><span class="comment"> * (https://juejin.cn/post/6844903601416978439#heading-10)</span></span><br><span class="line"><span class="comment"> * 中所讲的Vue2.0双向绑定原理，所以自己再重新实现一下这个方法(ts)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">let</span> uid = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Dep &#123;</span><br><span class="line">  id = uid++</span><br><span class="line">  subs: Subscriber[] = []</span><br><span class="line">  <span class="keyword">static</span> target: Subscriber | <span class="literal">null</span> = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  addSub(sub: Subscriber): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.subs.push(sub)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  notify(): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.subs.forEach(<span class="function">(<span class="params">sub</span>) =&gt;</span> &#123;</span><br><span class="line">      sub.update()</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  depend() &#123;</span><br><span class="line">    <span class="keyword">if</span> (Dep.target) &#123;</span><br><span class="line">      Dep.target.addDep(<span class="keyword">this</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Subscriber &#123;</span><br><span class="line">  depIds: &#123; [propName: <span class="built_in">string</span>]: Dep &#125; = &#123;&#125;</span><br><span class="line">  vm: Vue</span><br><span class="line">  cb: <span class="built_in">any</span></span><br><span class="line">  expOrFn: <span class="built_in">any</span></span><br><span class="line">  val: <span class="built_in">any</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">vm: Vue, expOrFn: <span class="built_in">any</span>, cb: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.vm = vm</span><br><span class="line">    <span class="keyword">this</span>.expOrFn = expOrFn</span><br><span class="line">    <span class="keyword">this</span>.cb = cb</span><br><span class="line">    <span class="keyword">this</span>.val = <span class="keyword">this</span>.get()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  update() &#123;</span><br><span class="line">    <span class="keyword">this</span>.run()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  run() &#123;</span><br><span class="line">    <span class="keyword">const</span> val = <span class="keyword">this</span>.get()</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.val !== val) &#123;</span><br><span class="line">      <span class="keyword">this</span>.val = val</span><br><span class="line">      <span class="keyword">this</span>.cb.call(<span class="keyword">this</span>.vm, val)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span>() &#123;</span><br><span class="line">    Dep.target = <span class="keyword">this</span></span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.vm)</span><br><span class="line">    <span class="keyword">const</span> val = <span class="keyword">this</span>.vm.data[<span class="keyword">this</span>.expOrFn]</span><br><span class="line"></span><br><span class="line">    Dep.target = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">return</span> val</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  addDep(dep: Dep) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.depIds.hasOwnProperty(dep.id)) &#123;</span><br><span class="line">      dep.addSub(<span class="keyword">this</span>)</span><br><span class="line">      <span class="keyword">this</span>.depIds[dep.id] = dep</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Observer &#123;</span><br><span class="line">  value: <span class="built_in">any</span></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">value: <span class="built_in">any</span></span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.value = value</span><br><span class="line">    <span class="keyword">this</span>.walk()</span><br><span class="line">  &#125;</span><br><span class="line">  walk() &#123;</span><br><span class="line">    <span class="built_in">Object</span>.keys(<span class="keyword">this</span>.value).forEach(<span class="function">(<span class="params">key</span>) =&gt;</span> <span class="keyword">this</span>.defineReactive(<span class="keyword">this</span>.value, key, <span class="keyword">this</span>.value[key]))</span><br><span class="line">  &#125;</span><br><span class="line">  defineReactive(obj, key, val) &#123;</span><br><span class="line">    <span class="keyword">const</span> dep = <span class="keyword">new</span> Dep()</span><br><span class="line">    <span class="built_in">Object</span>.defineProperty(obj, key, &#123;</span><br><span class="line">      enumerable: <span class="literal">true</span>,</span><br><span class="line">      configurable: <span class="literal">true</span>,</span><br><span class="line">      <span class="keyword">set</span>(newValue) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(val)</span><br><span class="line">        <span class="keyword">if</span> (val === newValue) <span class="keyword">return</span></span><br><span class="line">        val = newValue</span><br><span class="line">        observe(newValue)</span><br><span class="line">        dep.notify()</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="keyword">get</span>() &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(val)</span><br><span class="line">        <span class="keyword">if</span> (Dep.target) &#123;</span><br><span class="line">          dep.depend()</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> val</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> observe = <span class="function">(<span class="params">value</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (!value || <span class="keyword">typeof</span> value !== <span class="string">"object"</span>) <span class="keyword">return</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> Observer(value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Vue &#123;</span><br><span class="line">  data: <span class="built_in">any</span></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">option: &#123; data: <span class="built_in">any</span> &#125;</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.data = option.data</span><br><span class="line">    <span class="built_in">Object</span>.keys(<span class="keyword">this</span>.data).forEach(<span class="function">(<span class="params">key</span>) =&gt;</span> <span class="keyword">this</span>.proxy(key))</span><br><span class="line">    observe(<span class="keyword">this</span>.data)</span><br><span class="line">  &#125;</span><br><span class="line">  $watch(expOrFn: <span class="built_in">any</span>, callback: <span class="built_in">any</span>) &#123;</span><br><span class="line">    <span class="keyword">new</span> Subscriber(<span class="keyword">this</span>, expOrFn, callback)</span><br><span class="line">  &#125;</span><br><span class="line">  proxy(key: <span class="built_in">string</span>) &#123;</span><br><span class="line">    <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>, key, &#123;</span><br><span class="line">      <span class="keyword">get</span>() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.data[key]</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="keyword">set</span>(newValue: <span class="built_in">any</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.data[key] = newValue</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> demo: <span class="built_in">any</span> = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  data: &#123; text: <span class="string">""</span> &#125;,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> input = <span class="built_in">document</span>.getElementById(<span class="string">"input"</span>)</span><br><span class="line"><span class="keyword">const</span> p = <span class="built_in">document</span>.getElementById(<span class="string">"p"</span>)</span><br><span class="line"></span><br><span class="line">input.addEventListener(<span class="string">"input"</span>, <span class="function">(<span class="params">event: <span class="built_in">any</span></span>) =&gt;</span> &#123;</span><br><span class="line">  demo.text = event.target.value</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">demo.$watch(<span class="string">"text"</span>, <span class="function">(<span class="params">val: <span class="built_in">string</span></span>) =&gt;</span> (p.innerHTML = val))</span><br></pre></td></tr></table></figure>
+
+<p>理解源码之后我们来分析一下为什么存在上面我们说的三个问题</p>
+<ul>
+<li>2.0 响应式数据都要提前data里面声明；响应式数据是通过<code>访问器属性(getter/setter)</code>实现的，但是我们声明的时候声明的是对象的<code>数据属性</code>，是通过调用方法<code>defineReactive()</code>设置的响应式数据。假设我们的Vue实例化之后在代码中声明了一个属性，那么这个属性是没有调用过<code>defineReactive()</code>方法的。</li>
+<li>2.0 响应式数据对数组的效果不理想；响应式数据是通过<code>访问器属性(getter/setter)</code>实现的，当数组改变的时候无法检测到。最常见改变数组的方法：’push’, ‘pop’, ‘shift’, ‘unshift’, ‘splice’, ‘sort’, ‘reverse’<em>（不包括改变数组的指向）</em></li>
+<li>2.0 响应式数据需要对多级对象进行深度遍历影响性能；2.0中为了能全面的对数据进行监听，所以要把多级对象进行深度遍历，为每个对象(PS:包括深度)的属性设置<code>访问器属性</code></li>
+</ul>
+<p>那么<code>Proxy</code>如何避免以上问题呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> data = &#123;</span><br><span class="line">  title: <span class="string">"userInfo"</span>,</span><br><span class="line">  andy: &#123;</span><br><span class="line">    name: <span class="string">"啦啦啦"</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> newData = <span class="keyword">new</span> <span class="built_in">Proxy</span>(data, &#123;</span><br><span class="line">  <span class="keyword">set</span>() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"设置data的值"</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Reflect</span>.set(...arguments)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">newData.title = <span class="string">"infoMation"</span> <span class="comment">// 设置data的值</span></span><br></pre></td></tr></table></figure>
+<p><strong><code>Proxy</code>只需要给整个对象做劫持就可以，不需要为每个属性增加访问器属性</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> data = [<span class="number">123</span>, <span class="number">123</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> newData = <span class="keyword">new</span> <span class="built_in">Proxy</span>(data, &#123;</span><br><span class="line">  <span class="keyword">set</span>() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"设置data的值"</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Reflect</span>.set(...arguments)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">newData.push(<span class="number">456</span>) <span class="comment">// 设置data的值</span></span><br><span class="line"><span class="built_in">console</span>.log(newData)  <span class="comment">// [123,123,234]</span></span><br></pre></td></tr></table></figure>
+<p><strong><code>Proxy</code>天生就可以劫持数组的改变</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> newData = <span class="keyword">new</span> <span class="built_in">Proxy</span>(data, &#123;</span><br><span class="line">  <span class="keyword">set</span>() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"设置data的值"</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Reflect</span>.set(...arguments)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">newData.title = <span class="string">"infoMation"</span> <span class="comment">// 设置data的值</span></span><br><span class="line">newData.andy.name = <span class="string">"吼吼吼"</span> <span class="comment">//  未打印</span></span><br><span class="line">newData.andy = &#123; <span class="attr">name</span>: <span class="string">"吼吼吼"</span> &#125; <span class="comment">// 设置data的值</span></span><br></pre></td></tr></table></figure>
+<p><strong><code>Proxy</code>只能劫持代理对象的直系属性，多级属性改变也无法劫持，所以也需要做深层遍历劫持；<br>由于<code>Proxy</code>可以代理整个对象，所以相比直线深层遍历其实“不深”</strong></p>
+<h3 id="文章参考来源"><a href="#文章参考来源" class="headerlink" title="文章参考来源"></a>文章参考来源</h3><ol>
+<li><a href="https://github.com/vuejs/vue/blob/dev/src/core/observer/index.js#L156-L193" target="_blank" rel="noopener">Vue2.0双向绑定源码</a></li>
+<li><a href="https://segmentfault.com/a/1190000020211587" target="_blank" rel="noopener">发布-订阅模式和观察者模式真的不一样？</a></li>
+<li><a href="https://juejin.cn/post/6844903601416978439#heading-12" target="_blank" rel="noopener">面试官: 实现双向绑定Proxy比defineproperty优劣如何?</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/21/js-asynchronous-programming/" rel="next" title="JavaScript 异步编程">
+                <i class="fa fa-chevron-left"></i> JavaScript 异步编程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/04/17/js-this/" rel="prev" title="彻底搞懂 JavaScript 中的 this 指向">
+                彻底搞懂 JavaScript 中的 this 指向 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Hhpon</p>
+              <p class="site-description motion-element" itemprop="description">苟有恒，何必三更眠五更起，最无益，莫过一日曝十日寒。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#观察者模式-VS-发布-订阅模式"><span class="nav-number">2.</span> <span class="nav-text">观察者模式 VS 发布-订阅模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#观察者模式"><span class="nav-number">2.1.</span> <span class="nav-text">观察者模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#发布-订阅模式"><span class="nav-number">2.2.</span> <span class="nav-text">发布-订阅模式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Vue-双向绑定原理解析"><span class="nav-number">3.</span> <span class="nav-text">Vue 双向绑定原理解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Vue-2-0-VS-3-0-有哪些不同"><span class="nav-number">3.1.</span> <span class="nav-text">Vue 2.0 VS 3.0 有哪些不同</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#手写-Vue-双向绑定部分源码"><span class="nav-number">3.2.</span> <span class="nav-text">手写 Vue 双向绑定部分源码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#文章参考来源"><span class="nav-number">4.</span> <span class="nav-text">文章参考来源</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hhpon</span>
+
+  
+</div>
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://beian.miit.gov.cn/state/outPortal/loginPortal.action">黑ICP备17009853号</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info"><a target="_blank" href="https://github.com/Hhpon">GitHub</a></div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="标准函数中，this引用的是把函数当成方法调用的上下文对象...">
+<meta property="og:type" content="article">
+<meta property="og:title" content="彻底搞懂 JavaScript 中的 this 指向">
+<meta property="og:url" content="http://yoursite.com/2021/04/17/js-this/index.html">
+<meta property="og:site_name" content="学习笔记">
+<meta property="og:description" content="标准函数中，this引用的是把函数当成方法调用的上下文对象...">
+<meta property="article:published_time" content="2021-04-17T02:18:23.000Z">
+<meta property="article:modified_time" content="2021-04-17T02:22:10.795Z">
+<meta property="article:author" content="Hhpon">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/04/17/js-this/"/>
+
+
+
+
+
+  <title>彻底搞懂 JavaScript 中的 this 指向 | 学习笔记</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">学习笔记</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/17/js-this/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Hhpon">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="学习笔记">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">彻底搞懂 JavaScript 中的 this 指向</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-17T10:18:23+08:00">
+                2021-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  标准函数中，this引用的是把函数当成方法调用的上下文对象...
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><hr>
+<p>本文将从以下几方面阐述 Javascript 中 this 的指向问题。</p>
+<ul>
+<li>标准函数中，<code>this</code>的引用值是什么</li>
+<li>箭头函数中，<code>this</code>的引用值是什么</li>
+<li>使用<code>new</code>关键字创建对象时，<code>this</code>的引用值是什么</li>
+<li>闭包中使用<code>this</code>时，<code>this</code>的引用值什么</li>
+</ul>
+<h2 id="标准函数中，this-的引用值是什么"><a href="#标准函数中，this-的引用值是什么" class="headerlink" title="标准函数中，this 的引用值是什么"></a>标准函数中，this 的引用值是什么</h2><blockquote>
+<p>标准函数中，this引用的是把函数当成方法调用的上下文对象</p>
+</blockquote>
+<p><strong>在标准函数中<code>this</code>的值是会根据方法被调用的情况改变所引用的值</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">    identity: <span class="string">'My Object'</span>,</span><br><span class="line">    getIdentityFunc() &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">object.getIdentityFunc()  <span class="comment">// My Object</span></span><br><span class="line"><span class="keyword">const</span> getIdentityFunc = object.getIdentityFunc</span><br><span class="line">getIdentityFunc()  <span class="comment">// The Window</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="箭头函数中，this-的引用值是什么"><a href="#箭头函数中，this-的引用值是什么" class="headerlink" title="箭头函数中，this 的引用值是什么"></a>箭头函数中，this 的引用值是什么</h2><blockquote>
+<p>在箭头函数中，this引用的是定义箭头函数的上下文</p>
+</blockquote>
+<p><strong>由此可以看出箭头函数中的<code>this</code>引用值是固定的</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">    identity: <span class="string">'My Object'</span>,</span><br><span class="line">    testIdentity: <span class="keyword">this</span>.identity,</span><br><span class="line">    getIdentityFunc:<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(object.testIdentity)  <span class="comment">// The Window</span></span><br><span class="line">object.getIdentityFunc()  <span class="comment">// The Window</span></span><br></pre></td></tr></table></figure>
+
+<p>面试的时候我就遇到了这个问题，当时我心想</p>
+<blockquote>
+<p>“在箭头函数中，this引用的是定义箭头函数的上下文对象”</p>
+</blockquote>
+<p>大家如果仔细比较这两句话可以发现我心里想的多了两个字(或者说我就是囫囵的看了一遍书，根本没有好好的去理解、去验证)，这两个字不多不少让我把<code>this</code>的引用值认为成<code>object</code>这个对象了，所以我认为最后的结果应该是<code>My Object</code>。</p>
+<p>那么我们现在来具体的看看这个定义箭头函数的上下文是什么呢？<br><strong>在我看来，我们可以把this值看成上下文</strong></p>
+<p>那<strong>定义箭头函数的上下文</strong>其实就是<code>object</code>的<code>this</code>值呗；那我们要知道的其实就是<code>object</code>的<code>this</code>的<code>identity</code>属性是什么呗?</p>
+<p>在上方代码的倒数第二行就是为了说明这个问题，由于属性<code>testIdentity</code>的值是<code>The Window</code>我们能得出<code>object</code>的<code>this</code>引用值其实是<code>window</code>；</p>
+<p>由于函数<code>getIdentityFunc</code>中的<code>this</code>引用值其实是<code>object</code>的<code>this</code>，也就是<code>window</code>。所以函数<code>getIdentityFunc</code>中的<code>this.identity</code>是<code>The Window</code>。</p>
+<h3 id="既然箭头函数中的-this-是固定的，那么类似-call-的函数能改变-this-的引用值吗"><a href="#既然箭头函数中的-this-是固定的，那么类似-call-的函数能改变-this-的引用值吗" class="headerlink" title="既然箭头函数中的 this 是固定的，那么类似 call 的函数能改变 this 的引用值吗"></a>既然箭头函数中的 this 是固定的，那么类似 call 的函数能改变 this 的引用值吗</h3><p>在JS中我们可以使用<code>call</code>、<code>apply</code>、<code>bind</code>方法改变<code>this</code>指向，既然箭头函数的<code>this</code>值引用值是固定的，那我们能使用这几个方法改变这个引用值吗?</p>
+<p>看下面的代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">    identity: <span class="string">'My Object'</span>,</span><br><span class="line">    getIdentityFunc() &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">let</span> object1 = &#123;</span><br><span class="line">    identity: <span class="string">'My Object1'</span></span><br><span class="line">&#125;</span><br><span class="line">object.getIdentityFunc.call(object1)  <span class="comment">// My Object1</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">    identity: <span class="string">'My Object'</span>,</span><br><span class="line">    testIdentity: <span class="keyword">this</span>.identity,</span><br><span class="line">    getIdentityFunc:<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(object.testIdentity)  <span class="comment">// The Window</span></span><br><span class="line">object.getIdentityFunc()  <span class="comment">// The Window</span></span><br><span class="line">object.getIdentityFunc.call(object)  <span class="comment">// The Window</span></span><br></pre></td></tr></table></figure>
+
+<p>对比这两处代码我们能发现call方法根本无法改变箭头函数的<code>this</code>的引用值。</p>
+<h2 id="使用-new-关键字创建对象时，this-的引用值是什么"><a href="#使用-new-关键字创建对象时，this-的引用值是什么" class="headerlink" title="使用 new 关键字创建对象时，this 的引用值是什么"></a>使用 new 关键字创建对象时，this 的引用值是什么</h2><blockquote>
+<p>在实例中this的引用值是当前所在的实例</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Obj</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.identity = <span class="string">"My Object"</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.getIdentityFunc = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.getIdentityFunc1 = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> obj = <span class="keyword">new</span> Obj()</span><br><span class="line">obj.getIdentityFunc()  <span class="comment">// My Object</span></span><br><span class="line">obj.getIdentityFunc1() <span class="comment">// My Object</span></span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到两个函数中输出的都是<code>My Object</code>，<code>getIdentityFunc</code>函数的结果也之前调用的差别不大，因为在这个函数里面<code>this</code>的引用值依然是<code>obj</code>这个上下文对象。</p>
+<p>但是在函数<code>getIdentityFunc1</code>中，虽然都是箭头函数(和第二个例子的代码做比较)，但是这一次的结果确实<code>My Object</code>，也就是说这一次的<code>this</code>引用值是对象<code>obj</code>。</p>
+<p>那么这个情况的原因是什么呢？我们来回忆一下刚刚第二个例子里面箭头函数的<code>this</code>值是等于对象<code>object</code>的<code>this</code>值，事实上这一次也是。所以造成这两次结果不同的原因其实是这两次的“函数上下文”不一样了。</p>
+<ul>
+<li>第二个例子中 <code>object</code>的函数上下文<code>this</code>引用值是<code>window</code></li>
+<li>这次<code>obj</code>的函数上下文<code>this</code>的引用值是他自己<code>obj</code></li>
+</ul>
+<h2 id="闭包中使用-this-时，this-的引用值什么"><a href="#闭包中使用-this-时，this-的引用值什么" class="headerlink" title="闭包中使用 this 时，this 的引用值什么"></a>闭包中使用 this 时，this 的引用值什么</h2><blockquote>
+<p>在闭包中使用 this 会让代码变复杂。如果内部函数没有使用<strong>箭头函数</strong>定义，则 this 对象会在运行时绑定到执行函数的上下文。如果在全局函数中调用，则 this 在非严格模式下等于 window，在严格模式下等于 undefined。如果作为某个对象的方法调用，则 this 等于这个对象。</p>
+</blockquote>
+<p>从这一段话中我们可以提取出以下几条信息。</p>
+<ol>
+<li>如果闭包的内部函数是使用箭头函数定义的，基本不受影响，我们只需要按照箭头函数的<code>this</code>指向判断方法判断就可以。</li>
+<li>如果在全局函数中调用，则 this 在非严格模式下等于 window，在严格模式下等于 undefined</li>
+<li>如果作为某个对象的方法调用，则 this 等于这个对象</li>
+</ol>
+<h4 id="内部函数使用箭头函数定义的，基本不受影响"><a href="#内部函数使用箭头函数定义的，基本不受影响" class="headerlink" title="内部函数使用箭头函数定义的，基本不受影响"></a>内部函数使用箭头函数定义的，基本不受影响</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">  identity: <span class="string">"My Object"</span>,</span><br><span class="line">  getIdentityFunc() &#123;</span><br><span class="line">    <span class="keyword">const</span> doit = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> doit</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">object.getIdentityFunc()() <span class="comment">// My Object</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="如果在全局函数中调用，则-this-在非严格模式下等于-window，在严格模式下等于-undefined"><a href="#如果在全局函数中调用，则-this-在非严格模式下等于-window，在严格模式下等于-undefined" class="headerlink" title="如果在全局函数中调用，则 this 在非严格模式下等于 window，在严格模式下等于 undefined"></a>如果在全局函数中调用，则 this 在非严格模式下等于 window，在严格模式下等于 undefined</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">  identity: <span class="string">"My Object"</span>,</span><br><span class="line">  getIdentityFunc() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">object.getIdentityFunc()() <span class="comment">// The Window</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="如果作为某个对象的方法调用，则-this-等于这个对象"><a href="#如果作为某个对象的方法调用，则-this-等于这个对象" class="headerlink" title="如果作为某个对象的方法调用，则 this 等于这个对象"></a>如果作为某个对象的方法调用，则 this 等于这个对象</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">  identity: <span class="string">"My Object"</span>,</span><br><span class="line">  testIdentity: <span class="keyword">this</span>.identity,</span><br><span class="line">  getIdentityFunc: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc1() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc2() &#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">doit</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> doit</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc3() &#123;</span><br><span class="line">    <span class="keyword">const</span> doit = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> doit</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">object.getIdentityFunc() <span class="comment">// The Window</span></span><br><span class="line">object.getIdentityFunc1()() <span class="comment">// The Window</span></span><br><span class="line">object.getIdentityFunc2()() <span class="comment">// The Window </span></span><br><span class="line">object.getIdentityFunc3()() <span class="comment">// My Object</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> object1 = &#123;</span><br><span class="line">  identity: <span class="string">"My Object1"</span>,</span><br><span class="line">  getIdentityFunc1: object.getIdentityFunc1(),</span><br><span class="line">  getIdentityFunc2: object.getIdentityFunc2(),</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">object1.getIdentityFunc1()  <span class="comment">// My Object1</span></span><br><span class="line">object1.getIdentityFunc2()  <span class="comment">// My Object1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="练习题目"><a href="#练习题目" class="headerlink" title="练习题目"></a>练习题目</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> test = &#123;</span><br><span class="line">  name: <span class="string">"Bill"</span>,</span><br><span class="line">  show1: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">  &#125;,</span><br><span class="line">  show2: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">  &#125;,</span><br><span class="line">  show3: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">innerFunction</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">    &#125;</span><br><span class="line">    innerFunction()</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">test.show1()</span><br><span class="line">test.show2()</span><br><span class="line">test.show3()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参考答案</span></span><br><span class="line">Bill</span><br><span class="line"><span class="literal">undefined</span></span><br><span class="line"><span class="literal">undefined</span></span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">"window"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> person1 = &#123;</span><br><span class="line">  name: <span class="string">"person1"</span>,</span><br><span class="line"></span><br><span class="line">  foo1: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  foo2: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">console</span>.log(<span class="keyword">this</span>.name),</span><br><span class="line"></span><br><span class="line">  foo3: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  foo4: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> person2 = &#123; <span class="attr">name</span>: <span class="string">"person2"</span> &#125;</span><br><span class="line"></span><br><span class="line">person1.foo1() </span><br><span class="line">person1.foo1.call(person2)</span><br><span class="line">person1.foo2()</span><br><span class="line">person1.foo2.call(person2)</span><br><span class="line">person1.foo3()()</span><br><span class="line">person1.foo3.call(person2)()</span><br><span class="line">person1.foo3().call(person2)</span><br><span class="line">person1.foo4()()</span><br><span class="line">person1.foo4.call(person2)()</span><br><span class="line">person1.foo4().call(person2)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参考答案</span></span><br><span class="line">person1</span><br><span class="line">person2</span><br><span class="line"><span class="built_in">window</span></span><br><span class="line"><span class="built_in">window</span></span><br><span class="line"><span class="built_in">window</span></span><br><span class="line"><span class="built_in">window</span></span><br><span class="line">person2</span><br><span class="line">person1</span><br><span class="line">person2</span><br><span class="line">person1</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> name = <span class="string">"window"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Person</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.name = name</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.foo1 = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.foo2 = <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">  <span class="keyword">this</span>.foo3 = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.foo4 = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.name)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> person1 = <span class="keyword">new</span> Person(<span class="string">"person1"</span>)</span><br><span class="line"><span class="keyword">var</span> person2 = <span class="keyword">new</span> Person(<span class="string">"person2"</span>)</span><br><span class="line">person1.foo1()</span><br><span class="line">person1.foo1.call(person2)</span><br><span class="line">person1.foo2()</span><br><span class="line">person1.foo2.call(person2)</span><br><span class="line">person1.foo3()()</span><br><span class="line">person1.foo3.call(person2)()</span><br><span class="line">person1.foo3().call(person2)</span><br><span class="line">person1.foo4()()</span><br><span class="line">person1.foo4.call(person2)()</span><br><span class="line">person1.foo4().call(person2)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参考答案</span></span><br><span class="line">person1</span><br><span class="line">person2</span><br><span class="line">person1</span><br><span class="line">person1</span><br><span class="line"><span class="built_in">window</span></span><br><span class="line"><span class="built_in">window</span></span><br><span class="line">person2</span><br><span class="line">person1</span><br><span class="line">person2</span><br><span class="line">person1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">window</span>.identity = <span class="string">"The Window"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> object = &#123;</span><br><span class="line">  identity: <span class="string">"My Object"</span>,</span><br><span class="line">  testThis: <span class="keyword">this</span>.identity,</span><br><span class="line">  getIdentityFunc() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc1: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc2: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">innerFunction</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">    innerFunction()</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc3() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc4() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc5: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc6: <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc7() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">innerFunction</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>)</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">    innerFunction()</span><br><span class="line">  &#125;,</span><br><span class="line">  getIdentityFunc8() &#123;</span><br><span class="line">    <span class="keyword">const</span> innerFunction = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="keyword">this</span>.identity)</span><br><span class="line">    &#125;</span><br><span class="line">    innerFunction()</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">object.getIdentityFunc() <span class="comment">// My Object</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc = object.getIdentityFunc</span><br><span class="line">getIdentityFunc() <span class="comment">// The Window</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc1() <span class="comment">// The Window</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc1 = object.getIdentityFunc1</span><br><span class="line">getIdentityFunc1() <span class="comment">// The Window</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc2() <span class="comment">// The Window</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc2 = object.getIdentityFunc2</span><br><span class="line">getIdentityFunc2() <span class="comment">// The Window</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc3()() <span class="comment">// The Window</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc3 = object.getIdentityFunc3()</span><br><span class="line">getIdentityFunc3() <span class="comment">// The Window</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc4()() <span class="comment">// My Object</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc4 = object.getIdentityFunc4()</span><br><span class="line">getIdentityFunc4() <span class="comment">// My Object</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc5()() <span class="comment">// The Window</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc5 = object.getIdentityFunc5()</span><br><span class="line">getIdentityFunc5() <span class="comment">// The Window</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc6()() <span class="comment">// The Window</span></span><br><span class="line"><span class="keyword">let</span> getIdentityFunc6 = object.getIdentityFunc6()</span><br><span class="line">getIdentityFunc6() <span class="comment">// The Window</span></span><br><span class="line"></span><br><span class="line">object.getIdentityFunc7()</span><br><span class="line">object.getIdentityFunc8()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参考答案</span></span><br><span class="line"></span><br><span class="line">My <span class="built_in">Object</span></span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">My <span class="built_in">Object</span></span><br><span class="line">My <span class="built_in">Object</span></span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">The Window</span><br><span class="line">My <span class="built_in">Object</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="文章参考文献"><a href="#文章参考文献" class="headerlink" title="文章参考文献"></a>文章参考文献</h2><ul>
+<li>《JavaScript 高级程序设计》</li>
+<li><a href="https://www.jianshu.com/p/b1e0eb9151f9" target="_blank" rel="noopener">JavaScript之彻底搞懂this的指向</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/03/21/vue-observer/" rel="next" title="深入Vue双向绑定原理">
+                <i class="fa fa-chevron-left"></i> 深入Vue双向绑定原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Hhpon</p>
+              <p class="site-description motion-element" itemprop="description">苟有恒，何必三更眠五更起，最无益，莫过一日曝十日寒。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标准函数中，this-的引用值是什么"><span class="nav-number">2.</span> <span class="nav-text">标准函数中，this 的引用值是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#箭头函数中，this-的引用值是什么"><span class="nav-number">3.</span> <span class="nav-text">箭头函数中，this 的引用值是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#既然箭头函数中的-this-是固定的，那么类似-call-的函数能改变-this-的引用值吗"><span class="nav-number">3.1.</span> <span class="nav-text">既然箭头函数中的 this 是固定的，那么类似 call 的函数能改变 this 的引用值吗</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用-new-关键字创建对象时，this-的引用值是什么"><span class="nav-number">4.</span> <span class="nav-text">使用 new 关键字创建对象时，this 的引用值是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#闭包中使用-this-时，this-的引用值什么"><span class="nav-number">5.</span> <span class="nav-text">闭包中使用 this 时，this 的引用值什么</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#内部函数使用箭头函数定义的，基本不受影响"><span class="nav-number">5.0.1.</span> <span class="nav-text">内部函数使用箭头函数定义的，基本不受影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果在全局函数中调用，则-this-在非严格模式下等于-window，在严格模式下等于-undefined"><span class="nav-number">5.0.2.</span> <span class="nav-text">如果在全局函数中调用，则 this 在非严格模式下等于 window，在严格模式下等于 undefined</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#如果作为某个对象的方法调用，则-this-等于这个对象"><span class="nav-number">5.0.3.</span> <span class="nav-text">如果作为某个对象的方法调用，则 this 等于这个对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#练习题目"><span class="nav-number">6.</span> <span class="nav-text">练习题目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文章参考文献"><span class="nav-number">7.</span> <span class="nav-text">文章参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Hhpon</span>
+
+  
+</div>
+
+
+  <div class="powered-by"><a class="theme-link" target="_blank" href="https://beian.miit.gov.cn/state/outPortal/loginPortal.action">黑ICP备17009853号</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info"><a target="_blank" href="https://github.com/Hhpon">GitHub</a></div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
